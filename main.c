@@ -19,18 +19,19 @@ typedef struct _Edge Edge;
 
 /* Global variables*/
 int i,j;
-int numVertex;
+int numVertex, numNodes;
 Edge arrayEdges[10000]; /* Maximun number of edges */
 Edge tempArray [10000]; /* Maximun number of edges */
-int groupCities[100];   /* Maximun number of cities */
+int groupNodes[100];    /* Maximun number of cities */
 
 /* Method definitions */
 void initialize()
 {
     numVertex=0;
+    numNodes=0;
 
     for(i=0;i<100;i++)
-        groupCities[i]=i;
+        groupNodes[i]=0;
 }
 
 void readInputFile(char* inputFileName)
@@ -51,6 +52,10 @@ void readInputFile(char* inputFileName)
         arrayEdges[numVertex].origNode = from;
         arrayEdges[numVertex].destNode = to;
         arrayEdges[numVertex].costEdge = cost;
+
+        /* Update the existend nodes */
+        groupNodes[from-1] = 1;
+        groupNodes[to-1]   = 1;
         
         /* Try to read the next vals*/
         fscanf (fileIn, "%d", &from);
@@ -60,6 +65,10 @@ void readInputFile(char* inputFileName)
         /*Count the real number of vertexes*/
         numVertex++;
     }
+
+    /* Calculate the real number of nodes */
+    for(i=0; i<100; i++)
+        numNodes+=groupNodes[i];
 
     /* Close file, and zering pointer*/
     fclose(fileIn);
@@ -126,21 +135,26 @@ void kruskal()
 {
     int orig, dest, from, to;
 
-    for(i=0; i<numVertex; i++) /* For now! it only needs up to number of cities */
+    for(i=0; i<numNodes; i++) /* For now! it only needs up to number of cities */
     {
+        /* Formated output */
+        for(j=0; j<numNodes; j++)
+            printf("%d -> %d | ",(j+1),groupNodes[j]);
+        printf("\n");
+        
         orig = arrayEdges[i].origNode;
         dest = arrayEdges[i].destNode;
 
         /* Take the less city id as from and the biger as to */
-        if(groupCities[orig] > groupCities[dest])
+        if(groupNodes[orig-1] > groupNodes[dest-1])
         {
-            from = groupCities[dest];
-            to   = groupCities[orig];
+            from = groupNodes[dest-1];
+            to   = groupNodes[orig-1];
         }
         else
         {
-            to   = groupCities[dest];
-            from = groupCities[orig];
+            to   = groupNodes[dest-1];
+            from = groupNodes[orig-1];
         }
 
         /* If the edge connect tow diferents groups */
@@ -148,19 +162,14 @@ void kruskal()
         {
             for(j=0; j<100; j++)
             {
-                if(groupCities[j] == to)
-                    groupCities[j] = from;
+                if(groupNodes[j-1] == to)
+                    groupNodes[j-1] = from;
             }
 
             printf("%d %d %d\n",arrayEdges[i].origNode,
                                 arrayEdges[i].destNode,
                                 arrayEdges[i].costEdge);
         }
-
-        /* Check if has */
-        for(j=1; j<10; j++)
-            printf("%d -> %d | ",j,groupCities[j]);
-        printf("\n");
     }
 }
 
@@ -179,6 +188,10 @@ int main(int argc, char *argv[])
     }
     inputFileName  = argv[1];
     readInputFile(inputFileName);
+
+    /* Put every city in a group */
+    for(i=0;i<100;i++)
+        groupNodes[i]=(i+1);
 
     /* Processing */
     sortEdges(0,numVertex);
