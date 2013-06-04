@@ -131,19 +131,23 @@ void sortEdges(int start, int end)
     }
 }
 
+void printArray()
+{
+    for(j=0; j<numNodes; j++)
+        printf("%d -> %d | ",(j+1),groupNodes[j]);
+}
+
 void kruskal()
 {
-    int orig, dest, from, to;
+    int orig, dest, cost, from, to, count=0;;
 
-    for(i=0; i<numNodes; i++) /* For now! it only needs up to number of cities */
+    for(i=0; i<numVertex && count<(numNodes-1); i++) /* For now! it only needs up to number of cities */
     {
-        /* Formated output */
-        for(j=0; j<numNodes; j++)
-            printf("%d -> %d | ",(j+1),groupNodes[j]);
-        printf("\n");
-        
+        printArray();
+
         orig = arrayEdges[i].origNode;
         dest = arrayEdges[i].destNode;
+        cost = arrayEdges[i].costEdge;
 
         /* Take the less city id as from and the biger as to */
         if(groupNodes[orig-1] > groupNodes[dest-1])
@@ -157,6 +161,8 @@ void kruskal()
             from = groupNodes[orig-1];
         }
 
+        printf("\t(%d, %d)\t|\t%d\t|", orig, dest, cost);
+
         /* If the edge connect tow diferents groups */
         if(from!=to)
         {
@@ -165,10 +171,12 @@ void kruskal()
                 if(groupNodes[j-1] == to)
                     groupNodes[j-1] = from;
             }
-
-            printf("%d %d %d\n",arrayEdges[i].origNode,
-                                arrayEdges[i].destNode,
-                                arrayEdges[i].costEdge);
+            count++;
+            printf("Verdadeira\n");
+        }
+        else
+        {
+            printf("Falsa\n");
         }
     }
 }
