@@ -18,24 +18,29 @@ struct _Edge
 typedef struct _Edge Edge;
 
 /* Global variables*/
-int i,j;
 int numVertex, numNodes;
 Edge arrayEdges[10000]; /* Maximun number of edges */
 Edge tempArray [10000]; /* Maximun number of edges */
 int groupNodes[100];    /* Maximun number of cities */
+int groupNodesUsed[100];/* Maximun number of cities */
 
 /* Method definitions */
 void initialize()
 {
+    int i;
     numVertex=0;
     numNodes=0;
 
     for(i=0;i<100;i++)
+    {
         groupNodes[i]=0;
+        groupNodesUsed[i]=0;
+    }
 }
 
 void readInputFile(char* inputFileName)
 {
+    int i;
     FILE* fileIn;
     int from, to, cost;
     
@@ -77,6 +82,7 @@ void readInputFile(char* inputFileName)
 
 void mergeEdges(int start1, int end1, int start2, int end2)
 {
+    int i;
     int originalStart = start1;
     int size = end2 - start1;
 
@@ -133,13 +139,44 @@ void sortEdges(int start, int end)
 
 void printArray()
 {
-    for(j=0; j<numNodes; j++)
-        printf("%d -> %d | ",(j+1),groupNodes[j]);
+    int i, j, numNodesPerGroup;
+    
+    for(i=0; i<numNodes; i++)
+        groupNodesUsed[groupNodes[i]-1]=1;
+ 
+    for(i=0; i<numNodes; i++)
+    {
+        numNodesPerGroup = 0;
+
+        for(j=0; j<numNodes; j++)
+            if(groupNodes[j]==(i+1))
+                numNodesPerGroup++;
+
+        if(numNodesPerGroup>0)
+        {
+            printf("R%d{",(i+1));
+            for(j=0; j<numNodes; j++)
+            {
+                if(groupNodes[j]==(i+1))
+                {
+                    printf("%d",(j+1));
+                    numNodesPerGroup--;
+                
+                    if(numNodesPerGroup!=0)
+                        printf(", ");
+                }
+            }
+            printf("}");
+            
+            if(i!=(numNodes-1))
+                printf(", ");
+        }
+    }
 }
 
 void kruskal()
 {
-    int orig, dest, cost, from, to, count=0;;
+    int i, j, orig, dest, cost, from, to, count=0;;
 
     for(i=0; i<numVertex && count<(numNodes-1); i++) /* For now! it only needs up to number of cities */
     {
@@ -183,9 +220,10 @@ void kruskal()
 
 int main(int argc, char *argv[])
 {
+    int i;
     char* inputFileName;
 
-    /* Call to the initialize met*/
+    /* Call to the initialize method */
     initialize();
 
     /* Correct number of parameters? */
