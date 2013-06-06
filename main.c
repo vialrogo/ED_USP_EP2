@@ -7,6 +7,7 @@
  */
 
 #include <stdio.h>
+#include <math.h>
 
 /* Structs definitions*/
 struct _Edge
@@ -137,6 +138,10 @@ void printArray()
 {
     int i, j, numNodesPerGroup, totalNumberGroups=0, count;
 
+    /* Common begin for all lines */
+    printf("|  ");
+    
+    /* First calculate the total of groups in this iteration */
     for(i=0; i<numNodes; i++)
         for(j=0; j<numNodes; j++) 
             if(groupNodes[j]==(i+1))
@@ -145,50 +150,82 @@ void printArray()
                 j=numNodes;
             }
 
+    /* count go to down, totalNumberGroups fix equal */
     count=totalNumberGroups;
  
+    /* Going to try to print all possible groups */
     for(i=0; i<numNodes; i++)
     {
         numNodesPerGroup = 0;
 
+        /* Calculate the total number of nodes in this group */
         for(j=0; j<numNodes; j++)
             if(groupNodes[j]==(i+1))
                 numNodesPerGroup++;
 
+        /* If have at least one node in this group */
         if(numNodesPerGroup>0)
         {
             printf("R%d{",(i+1));
-            for(j=0; j<numNodes; j++)
+            for(j=0; j<numNodes; j++) /* Try to print all nodes */
             {
-                if(groupNodes[j]==(i+1))
+                if(groupNodes[j]==(i+1)) /* Only print a node that is in this group */
                 {
                     printf("%d",(j+1));
                     numNodesPerGroup--;
                 
-                    if(numNodesPerGroup!=0)
+                    if(numNodesPerGroup!=0) /* Only if isn't the last group */
                         printf(", ");
                 }
             }
             printf("}");
             count--;
             
-            if(count!=0)
+            if(count!=0) /* Only if isn't the last group */
                 printf(", ");
         }
     }
 
-   for(i=0;i<(numNodes-totalNumberGroups);i++)
+    /* Print the remain spaces for aline the output */
+    for(i=0;i<(numNodes-totalNumberGroups);i++)
         printf("    ");
+    
+    /* Print the remain spaces for aline the output */
+    for(i=0;i<(50-(5*numNodes+2*(numNodes-1)+1));i++)
+        printf(" ");
+}
+
+void printDivision()
+{
+    int i;
+
+    printf("+");
+    for(i=0; i<(5*numNodes+2*(numNodes-1)+2) || i<51; i++)
+        printf("-");
+    
+    printf("+----------------+---------+---------------------+\n");
 }
 
 void kruskal()
 {
-    int i, j, orig, dest, cost, from, to, count=0;;
+    int i, j, orig, dest, cost, from, to, count=0, space2;
 
+    /* Print the first information */
+    printDivision();
+
+    printf("|  Coleção C (conjs. com vértices na mesma árvore)  ");
+    for(i=0; i<((5*numNodes+2*(numNodes-1)+1)-50); i++) printf(" ");
+    printf("|  aresta menor  |  custo  |  condição na linha  |\n");
+
+    printDivision();
+
+    /* Until haven't try all vertex AND not used n-1 vertex */
     for(i=0; i<numVertex && count<(numNodes-1); i++)
     {
+        /* Print the array of groups */
         printArray();
 
+        /* Save the original states */
         orig = arrayEdges[i].origNode;
         dest = arrayEdges[i].destNode;
         cost = arrayEdges[i].costEdge;
@@ -197,27 +234,38 @@ void kruskal()
         from = groupNodes[dest-1] > groupNodes[orig-1]?  groupNodes[orig-1] : groupNodes[dest-1];
         to   = groupNodes[dest-1] < groupNodes[orig-1]?  groupNodes[orig-1] : groupNodes[dest-1];
 
-        printf("  |   (%d, %d)\t|\t%d\t|", orig, dest, cost);
+        /* Print the rest of the information */
+        space2 = 0;
+        space2 += log10((double)orig)+1.0;
+        space2 += log10((double)dest)+1.0;
 
-        /* If the edge connect tow diferent groups */
+        printf("|   (%d, %d)   ",orig, dest);
+        for(j=0;j<(6-space2);j++) printf(" ");        
+        
+        printf("|\t%d\t", cost);
+
+        /* If the edge connect two DIFERENT groups */
         if(from!=to)
         {
+            /* Update all groups with the new vals */
             for(j=0; j<100; j++)
             {
                 if(groupNodes[j] == to)
                     groupNodes[j] = from;
             }
             count++;
-            printf("   Verdadeira\n");
+            printf( "|      Verdadeira     |\n");
         }
         else
         {
-            printf("   Falsa\n");
+            printf( "|        Falsa        |\n");
         }
     }
 
+    /* Print the final information */
     printArray();
-    printf("  |\t\t|\t\t|\n");
+    printf("|                |\t\t|\n");
+    printDivision();
 }
 
 int main(int argc, char *argv[])

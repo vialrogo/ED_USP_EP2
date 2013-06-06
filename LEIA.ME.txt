@@ -32,7 +32,7 @@ Compilação:
 ^^^^^^^^^^^
 Para compilar os arquivos fonte, use a siguente linha:
 
-    gcc -ansi -pedantic -o exe *.C
+   gcc -ansi -pedantic -lm -Wall -o exe *.c
 
 
 Execução: [Incompleto]
