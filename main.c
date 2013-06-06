@@ -23,6 +23,7 @@ int numVertex, numNodes;
 Edge arrayEdges[10000]; /* Maximun number of edges */
 Edge tempArray [10000]; /* Maximun number of edges */
 int groupNodes[100];    /* Maximun number of cities */
+int spaceCount=0;
 
 /* Method definitions */
 void initialize()
@@ -136,7 +137,7 @@ void sortEdges(int start, int end)
 
 void printArray()
 {
-    int i, j, numNodesPerGroup, totalNumberGroups=0, count;
+    int i, j, numNodesPerGroup, totalNumberGroups=0, count, localSpaceCount=0;
 
     /* Common begin for all lines */
     printf("|  ");
@@ -147,6 +148,7 @@ void printArray()
             if(groupNodes[j]==(i+1))
             {
                 totalNumberGroups++;
+                localSpaceCount += log10((double)(i+1));
                 j=numNodes;
             }
 
@@ -193,6 +195,9 @@ void printArray()
     /* Print the remain spaces for aline the output */
     for(i=0;i<(50-(5*numNodes+2*(numNodes-1)+1));i++)
         printf(" ");
+
+    for(i=0; i<(spaceCount-localSpaceCount); i++)
+        printf(" ");
 }
 
 void printDivision()
@@ -200,7 +205,7 @@ void printDivision()
     int i;
 
     printf("+");
-    for(i=0; i<(5*numNodes+2*(numNodes-1)+2) || i<51; i++)
+    for(i=0; i<(5*numNodes+2*(numNodes-1)+2+2*spaceCount) || i<51; i++)
         printf("-");
     
     printf("+----------------+---------+---------------------+\n");
@@ -209,12 +214,21 @@ void printDivision()
 void kruskal()
 {
     int i, j, orig, dest, cost, from, to, count=0, space2;
+    
+    /* First calculate the total of groups in this iteration */
+    for(i=0; i<numNodes; i++)
+        for(j=0; j<numNodes; j++) 
+            if(groupNodes[j]==(i+1))
+            {
+                spaceCount += log10((double)(i+1));
+                j=numNodes;
+            }
 
     /* Print the first information */
     printDivision();
 
     printf("|  Coleção C (conjs. com vértices na mesma árvore)  ");
-    for(i=0; i<((5*numNodes+2*(numNodes-1)+1)-50); i++) printf(" ");
+    for(i=0; i<((5*numNodes+2*(numNodes-1)+1) - 50 +2*spaceCount); i++) printf(" ");
     printf("|  aresta menor  |  custo  |  condição na linha  |\n");
 
     printDivision();
@@ -241,8 +255,12 @@ void kruskal()
 
         printf("|   (%d, %d)   ",orig, dest);
         for(j=0;j<(6-space2);j++) printf(" ");        
+        printf("|");
         
-        printf("|\t%d\t", cost);
+        space2 = 0;
+        space2 += log10((double)cost)+1.0;
+        for(j=0;j<=(6-space2);j++) printf(" ");        
+        printf("%d  ", cost);
 
         /* If the edge connect two DIFERENT groups */
         if(from!=to)
@@ -260,11 +278,13 @@ void kruskal()
         {
             printf( "|        Falsa        |\n");
         }
+
+        printDivision();
     }
 
     /* Print the final information */
     printArray();
-    printf("|                |\t\t|\n");
+    printf("|                |         |                     |\n");
     printDivision();
 }
 
