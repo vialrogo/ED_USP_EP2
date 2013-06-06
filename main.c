@@ -22,7 +22,6 @@ int numVertex, numNodes;
 Edge arrayEdges[10000]; /* Maximun number of edges */
 Edge tempArray [10000]; /* Maximun number of edges */
 int groupNodes[100];    /* Maximun number of cities */
-int groupNodesUsed[100];/* Maximun number of cities */
 
 /* Method definitions */
 void initialize()
@@ -32,10 +31,7 @@ void initialize()
     numNodes=0;
 
     for(i=0;i<100;i++)
-    {
         groupNodes[i]=0;
-        groupNodesUsed[i]=0;
-    }
 }
 
 void readInputFile(char* inputFileName)
@@ -139,10 +135,17 @@ void sortEdges(int start, int end)
 
 void printArray()
 {
-    int i, j, numNodesPerGroup;
-    
+    int i, j, numNodesPerGroup, totalNumberGroups=0, count;
+
     for(i=0; i<numNodes; i++)
-        groupNodesUsed[groupNodes[i]-1]=1;
+        for(j=0; j<numNodes; j++) 
+            if(groupNodes[j]==(i+1))
+            {
+                totalNumberGroups++;
+                j=numNodes;
+            }
+
+    count=totalNumberGroups;
  
     for(i=0; i<numNodes; i++)
     {
@@ -167,18 +170,22 @@ void printArray()
                 }
             }
             printf("}");
+            count--;
             
-            if(i!=(numNodes-1))
+            if(count!=0)
                 printf(", ");
         }
     }
+
+   for(i=0;i<(numNodes-totalNumberGroups);i++)
+        printf("    ");
 }
 
 void kruskal()
 {
     int i, j, orig, dest, cost, from, to, count=0;;
 
-    for(i=0; i<numVertex && count<(numNodes-1); i++) /* For now! it only needs up to number of cities */
+    for(i=0; i<numVertex && count<(numNodes-1); i++)
     {
         printArray();
 
@@ -187,35 +194,30 @@ void kruskal()
         cost = arrayEdges[i].costEdge;
 
         /* Take the less city id as from and the biger as to */
-        if(groupNodes[orig-1] > groupNodes[dest-1])
-        {
-            from = groupNodes[dest-1];
-            to   = groupNodes[orig-1];
-        }
-        else
-        {
-            to   = groupNodes[dest-1];
-            from = groupNodes[orig-1];
-        }
+        from = groupNodes[dest-1] > groupNodes[orig-1]?  groupNodes[orig-1] : groupNodes[dest-1];
+        to   = groupNodes[dest-1] < groupNodes[orig-1]?  groupNodes[orig-1] : groupNodes[dest-1];
 
-        printf("\t(%d, %d)\t|\t%d\t|", orig, dest, cost);
+        printf("  |   (%d, %d)\t|\t%d\t|", orig, dest, cost);
 
-        /* If the edge connect tow diferents groups */
+        /* If the edge connect tow diferent groups */
         if(from!=to)
         {
             for(j=0; j<100; j++)
             {
-                if(groupNodes[j-1] == to)
-                    groupNodes[j-1] = from;
+                if(groupNodes[j] == to)
+                    groupNodes[j] = from;
             }
             count++;
-            printf("Verdadeira\n");
+            printf("   Verdadeira\n");
         }
         else
         {
-            printf("Falsa\n");
+            printf("   Falsa\n");
         }
     }
+
+    printArray();
+    printf("  |\t\t|\t\t|\n");
 }
 
 int main(int argc, char *argv[])
