@@ -2,7 +2,7 @@ LEIA.ME.txt
 ===========
 
 Exercício de Programação 2 de Estruturas de Dados e sua Manipulação na USP
-como Routo Terada
+com Routo Terada
 
 Nome:   Victor Alberto Romero Gonzalez
 NUSP:   8405274
@@ -13,8 +13,11 @@ Arquivos: [Incompleto]
                     professor.
     Provas          Pasta de arquivos que contém as provas adicionais feitas e
                     suas saidas.
+    Capturas        Contém capturas que mostram o correto funcionamento do
+                    programa.
     main.c          Arquivo principal. Contém o metodo main e os métodos de
-                    leitura e escritura de arquivos.
+                    leitura e escritura de arquivos. Também contém o metodo de
+                    cálculo da árvore e os metodos de impressão em tela.
     exe             É o arquivo executable.
     LEIA.ME.txt     É este arquivo.
 
@@ -24,8 +27,8 @@ Ferramentas usadas:
 O computador que foi usado para programar o EP é:
 
     Processador:    Intel(R) Core(TM) i7-3610QM CPU @ 2.30GHz, com 8 cores
-    Compilador:     gcc (GCC) 4.8.0 20130425 (prerelease)
-    SO:             Linux, kernel 3.8.11
+    Compilador:     gcc (GCC) 4.8.1
+    SO:             Linux, kernel 3.9.4
 
 
 Compilação:
@@ -39,5 +42,5 @@ Execução: [Incompleto]
 ^^^^^^^^^
 O arquivo executavel pode ser usado asím:
 
-    ./exe
+    ./exe <arquivo_entrada>
 

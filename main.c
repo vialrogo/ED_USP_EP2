@@ -19,17 +19,17 @@ struct _Edge
 typedef struct _Edge Edge;
 
 /* Global variables*/
-int numVertex, numNodes;
+int numEdges, numNodes;
 Edge arrayEdges[10000]; /* Maximun number of edges */
 Edge tempArray [10000]; /* Maximun number of edges */
 int groupNodes[100];    /* Maximun number of cities */
-int spaceCount=0;
+int spaceCount=0;       /* Size of extra spaces by bigest numbers */
 
 /* Method definitions */
 void initialize()
 {
     int i;
-    numVertex=0;
+    numEdges=0;
     numNodes=0;
 
     for(i=0;i<100;i++)
@@ -52,9 +52,9 @@ void readInputFile(char* inputFileName)
     while(!feof (fileIn)) /* While o file still has numbers */
     {
         /* Read the input vals*/
-        arrayEdges[numVertex].origNode = from;
-        arrayEdges[numVertex].destNode = to;
-        arrayEdges[numVertex].costEdge = cost;
+        arrayEdges[numEdges].origNode = from;
+        arrayEdges[numEdges].destNode = to;
+        arrayEdges[numEdges].costEdge = cost;
 
         /* Update the existend nodes */
         groupNodes[from-1] = 1;
@@ -66,7 +66,7 @@ void readInputFile(char* inputFileName)
         fscanf (fileIn, "%d", &cost);
 
         /*Count the real number of vertexes*/
-        numVertex++;
+        numEdges++;
     }
 
     /* Calculate the real number of nodes */
@@ -78,6 +78,7 @@ void readInputFile(char* inputFileName)
     fileIn=0;
 }
 
+/* Merge part of merge-sort */
 void mergeEdges(int start1, int end1, int start2, int end2)
 {
     int i;
@@ -120,6 +121,7 @@ void mergeEdges(int start1, int end1, int start2, int end2)
         arrayEdges[originalStart+i]=tempArray[i];
 }
 
+/* Merge sort for Edges (order by cost) */
 void sortEdges(int start, int end)
 {
     /* calcule the point to split the array */
@@ -148,7 +150,7 @@ void printArray()
             if(groupNodes[j]==(i+1))
             {
                 totalNumberGroups++;
-                localSpaceCount += log10((double)(i+1));
+                localSpaceCount += log10((double)(i+1)); /* Calculate the extra spaces in this iteration */
                 j=numNodes;
             }
 
@@ -196,6 +198,7 @@ void printArray()
     for(i=0;i<(50-(5*numNodes+2*(numNodes-1)+1));i++)
         printf(" ");
 
+    /* Extra spaces by the bigest numbers */
     for(i=0; i<(spaceCount-localSpaceCount); i++)
         printf(" ");
 }
@@ -205,17 +208,19 @@ void printDivision()
     int i;
 
     printf("+");
+    /* has spaces by nodes and extra spaces for the bigest numbers */
     for(i=0; i<(5*numNodes+2*(numNodes-1)+2+2*spaceCount) || i<51; i++)
         printf("-");
     
     printf("+----------------+---------+---------------------+\n");
 }
 
+/* This method calculate kruskal AND print the result at the moment */
 void kruskal()
 {
     int i, j, orig, dest, cost, from, to, count=0, space2;
     
-    /* First calculate the total of groups in this iteration */
+    /* First calculate the total space when all nodes are in one group */
     for(i=0; i<numNodes; i++)
         for(j=0; j<numNodes; j++) 
             if(groupNodes[j]==(i+1))
@@ -226,15 +231,13 @@ void kruskal()
 
     /* Print the first information */
     printDivision();
-
     printf("|  Coleção C (conjs. com vértices na mesma árvore)  ");
     for(i=0; i<((5*numNodes+2*(numNodes-1)+1) - 50 +2*spaceCount); i++) printf(" ");
-    printf("|  aresta menor  |  custo  |  condição na linha  |\n");
-
+    printf("|  aresta menor  |  custo  |  condição Ri dif Rj |\n");
     printDivision();
 
     /* Until haven't try all vertex AND not used n-1 vertex */
-    for(i=0; i<numVertex && count<(numNodes-1); i++)
+    for(i=0; i<numEdges && count<(numNodes-1); i++)
     {
         /* Print the array of groups */
         printArray();
@@ -253,14 +256,14 @@ void kruskal()
         space2 += log10((double)orig)+1.0;
         space2 += log10((double)dest)+1.0;
 
-        printf("|   (%d, %d)   ",orig, dest);
+        printf("|   (%d, %d)   ",orig, dest); /* Edge */
         for(j=0;j<(6-space2);j++) printf(" ");        
         printf("|");
         
         space2 = 0;
         space2 += log10((double)cost)+1.0;
         for(j=0;j<=(6-space2);j++) printf(" ");        
-        printf("%d  ", cost);
+        printf("%d  ", cost); /* Cost */
 
         /* If the edge connect two DIFERENT groups */
         if(from!=to)
@@ -310,7 +313,7 @@ int main(int argc, char *argv[])
         groupNodes[i]=(i+1);
 
     /* Processing */
-    sortEdges(0,numVertex);
+    sortEdges(0,numEdges);
     kruskal();
 
     return 0;
